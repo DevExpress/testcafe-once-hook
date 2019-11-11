@@ -1,1 +1,28 @@
-# testcafe-before-once
+# testcafe-once-hook
+
+This is the workaround for `beforeAll` feature described in `put-a-link-here`.
+
+The main idea of the feature request is to add capability to execute test actions via TestController (click, hover, typeText, etc) once per fixture before all tests start.
+
+Use case:
+- we have a db
+- we want to add single record into the db using the user interface and test actions
+- we want to run tests in different browsers
+- we want to remove the test record from the db using the user interface and test actions
+
+
+## Description
+Example works using https://expressjs.com/ and https://github.com/typicode/lowdb
+
+- `/` - shows list of records from the `JSON` file
+- `/add` - adds a new record to the `JSON` file and redirects to the main page
+- `/remove` - removes a record from the `JSON` file and redirects to the main page
+
+To start the project execute the `npm start` command;
+
+## Once helper
+Use the `once` helper from the `utils/once.js` file in the `fixture.beforeEach` and `afterEach` hooks.
+The `once` helper will execute its callback function only once per a browser for `fixture.before` and `fixture.after`. The first available browser will be chosen.
+
+Follow to the `tests` directory to see the examples.
+Run the `npm testcafe chrome,firefox,ie` command to run the `tests` directory in 3 different browsers
