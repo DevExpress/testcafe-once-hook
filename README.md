@@ -27,4 +27,4 @@ The `once` helper will execute its callback function only once per a browser for
 Go to the `tests` directory to see the examples.
 
 ## Run tests
-Run the `npm test` command to start tests.
+Run the `npm test` command to start the project and run tests.
