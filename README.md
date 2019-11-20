@@ -25,4 +25,6 @@ Use the `once` helper from the `utils/once.js` file in the `fixture.beforeEach` 
 The `once` helper will execute its callback function only once per a browser for `fixture.before` and `fixture.after`. The first available browser will be chosen.
 
 Go to the `tests` directory to see the examples.
+
+## Run tests
 Run the `npx testcafe chrome,firefox,ie` command to run the `tests` directory in 3 different browsers.
