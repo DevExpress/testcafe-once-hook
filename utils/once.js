@@ -1,16 +1,23 @@
 export function once (fn) {
-    let executed       = false;
-    let resolver       = null;
-    let executionCount = 0;
+    let executed              = false;
+    let waitResolver          = null;
+    let doneResolver          = null;
+    let browserEnterHookCount = 0;
+    let executionCount        = 0;
 
-    const promise = new Promise(resolve => {
-        resolver = resolve;
+    const waitAllBrowsersPromise = new Promise(resolve => {
+       waitResolver = resolve;
+    });
+
+    const donePromise = new Promise(resolve => {
+        doneResolver = resolve;
     });
 
     return async function (t) {
-        const test      = t.testRun.test;
-        const tests     = test.fixture.testFile.collectedTests;
-        const testIndex = tests.indexOf(test);
+        const test         = t.testRun.test;
+        const tests        = test.fixture.testFile.collectedTests;
+        const testIndex    = tests.indexOf(test);
+        const browserCount = t.testRun.opts.browsers.length;
 
         const isInFixtureBeforeEachHook = t.testRun.phase === 'inFixtureBeforeEachHook';
         const isInFixtureAfterEachHook  = t.testRun.phase === 'inFixtureAfterEachHook';
@@ -21,22 +28,38 @@ export function once (fn) {
         if (!isFirstTestInFixture && !isLastTestInFixture)
             return;
 
+        browserEnterHookCount++;
+
+        if (browserEnterHookCount === browserCount)
+            waitResolver();
+
+        await waitAllBrowsersPromise;
+
         const beforeHookOnce = isInFixtureBeforeEachHook && executionCount === 0;
-        const afterHookOnce  = isInFixtureAfterEachHook && executionCount === t.testRun.opts.browsers.length - 1;
+        const afterHookOnce  = isInFixtureAfterEachHook && executionCount === browserCount - 1;
         const needExecute    = !executed && (beforeHookOnce || afterHookOnce);
 
         if (needExecute) {
             executed = true;
 
-            if (typeof fn === 'function')
-                await fn(t);
+            if (typeof fn === 'function') {
+                try {
+                    await fn(t);
+                }
+                catch (err) {
+                    t.testRun.errOnHook = err;
+                }
+            }
         }
 
         executionCount++;
 
-        if (executionCount === t.testRun.opts.browsers.length)
-            resolver();
+        if (executionCount === browserCount)
+            doneResolver();
 
-        await promise;
+        await donePromise;
+
+        if (t.testRun.errOnHook)
+            throw t.testRun.errOnHook;
     };
 }

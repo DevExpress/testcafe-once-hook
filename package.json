@@ -15,6 +15,6 @@
     "lowdb": "^1.0.0"
   },
   "devDependencies": {
-    "testcafe": "^1.6.1"
+    "testcafe": "^1.7.0"
   }
 }
