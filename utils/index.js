@@ -25,7 +25,7 @@ class Helper {
         }
     }
 
-    static needSkipHook (t) {
+    static shouldExecuteFixtureHook (t) {
         const test      = t.testRun.test;
         const tests     = test.fixture.testFile.collectedTests;
         const testIndex = tests.indexOf(test);
@@ -36,7 +36,7 @@ class Helper {
         const isFirstTestInFixture = testIndex === 0 && isInFixtureBeforeEachHook;
         const isLastTestInFixture  = testIndex === tests.length - 1 && isInFixtureAfterEachHook;
 
-        return !isFirstTestInFixture && !isLastTestInFixture;
+        return isFirstTestInFixture || isLastTestInFixture;
     }
 
     async executeHook (fn, t) {
@@ -82,7 +82,7 @@ export function oncePerFixture (fn) {
     let helper = new Helper();
 
     return async function (t) {
-        if (Helper.needSkipHook(t))
+        if (!Helper.shouldExecuteFixtureHook(t))
             return;
 
         await helper.executeHook(fn, t);
