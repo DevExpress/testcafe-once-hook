@@ -11,7 +11,7 @@ const cleanDB = oncePerFixture(async t => {
     removePost();
 });
 
-fixture `Without TestController`
+fixture `once-per-fixture-without-testcontroller`
     .page `http://localhost:3000`
     .beforeEach(prepareDB)
     .afterEach(cleanDB);

@@ -1,30 +1,20 @@
 import { Selector } from 'testcafe';
-
 import { oncePerTest } from '../../utils';
 import { getPosts } from '../../utils/db';
 
 const prepareDB = oncePerTest(async t => {
     await t.expect(getPosts().length).eql(1);
-
-    console.log('add record');
     await t.click(Selector('a').withText('Add'));
-
     await t.expect(getPosts().length).eql(2);
 });
 
 const cleanDB = oncePerTest(async t => {
-    console.log('clearDB');
-
     await t.expect(getPosts().length).eql(2);
-
-
     await t.click(Selector('a').withText('Remove'));
-
-
     await t.expect(getPosts().length).eql(1);
 });
 
-fixture `With TestController`
+fixture `once-per-test-with-testcontroller`
     .page `http://localhost:3000`
     .beforeEach(prepareDB)
     .afterEach(cleanDB);

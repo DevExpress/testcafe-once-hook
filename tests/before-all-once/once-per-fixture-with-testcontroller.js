@@ -11,7 +11,7 @@ const cleanDB = oncePerFixture(async t => {
     await t.click(Selector('a').withText('Remove'));
 });
 
-fixture `With TestController`
+fixture `once-per-fixture-with-testcontroller`
     .page `http://localhost:3000`
     .before(() => {
         if (getPosts().length !== 1)

@@ -1,8 +1,8 @@
 import { oncePerTest } from '../../utils';
 
-fixture `Error`
+fixture `once-per-test-error-before`
     .page `http://localhost:3000`
-    .afterEach(oncePerTest(async t => {
+    .beforeEach(oncePerTest(async t => {
         await t.click('#non-existing-element');
     }));
 

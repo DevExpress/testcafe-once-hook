@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "test": "node node_modules/testcafe/bin/testcafe chrome,firefox,ie tests"
+    "test": "node node_modules/testcafe/bin/testcafe ie,chrome,firefox tests"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",

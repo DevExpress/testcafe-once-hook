@@ -1,12 +1,12 @@
 import { oncePerFixture } from '../../utils';
 
-const afterHook = oncePerFixture(async t => {
-    throw new Error();
+const beforeHook = oncePerFixture(async t => {
+    await t.click('#non-existing-element');
 });
 
-fixture `Error in the 'afterHook'`
+fixture `once-per-fixture-error-after`
     .page `http://localhost:3000`
-    .afterEach(afterHook);
+    .beforeEach(beforeHook);
 
 test('check two posts 1', async t => {
     await t.wait(1000);
