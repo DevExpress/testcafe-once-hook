@@ -1,20 +1,25 @@
 import { Selector } from 'testcafe';
 
-import { beforeEach } from '../../utils';
+import { oncePerTest } from '../../utils';
 import { getPosts } from '../../utils/db';
 
-const prepareDB = beforeEach(async t => {
+const prepareDB = oncePerTest(async t => {
     await t.expect(getPosts().length).eql(1);
 
+    console.log('add record');
     await t.click(Selector('a').withText('Add'));
 
     await t.expect(getPosts().length).eql(2);
 });
 
-const cleanDB = beforeEach(async t => {
+const cleanDB = oncePerTest(async t => {
+    console.log('clearDB');
+
     await t.expect(getPosts().length).eql(2);
 
+
     await t.click(Selector('a').withText('Remove'));
+
 
     await t.expect(getPosts().length).eql(1);
 });

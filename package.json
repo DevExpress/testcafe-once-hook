@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "test": "node node_modules/testcafe/bin/testcafe chrome,firefox tests --app \"node ./bin/www\" --app-init-delay 5000"
+    "test": "node node_modules/testcafe/bin/testcafe chrome,firefox,ie tests"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",

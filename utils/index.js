@@ -1,16 +1,71 @@
-export function oncePerFixture (fn) {
-    let executed       = false;
-    let resolver       = null;
-    let executionCount = 0;
+class Helper {
+    constructor () {
+        console.log('new helper');
 
-    const promise = new Promise(resolve => {
-        resolver = resolve;
-    });
+        this.executed              = false;
+        this.browserEnterHookCount = 0;
+        this.executionCount        = 0;
+
+        this.waitAllBrowsersPromise = new Promise(resolve => {
+            this.waitResolver = resolve;
+        });
+
+        this.donePromise = new Promise(resolve => {
+            this.doneResolver = resolve;
+        });
+    }
+
+    async waitAllBrowsersEnterHook (browserCount) {
+        this.browserEnterHookCount++;
+
+        console.log('start hook: ' + this.browserEnterHookCount);
+
+        if (this.browserEnterHookCount === browserCount)
+            this.waitResolver();
+
+        await this.waitAllBrowsersPromise;
+
+        console.log('waitAllBrowsersPromise');
+    }
+
+    async waitAllBrowsersLeaveHook (browserCount) {
+        if (this.executionCount === browserCount)
+            this.doneResolver();
+
+        await this.donePromise;
+
+        console.log('donePromise');
+    }
+
+    async executeFn (fn, t, browserCount) {
+        const isInFixtureBeforeEachHook = t.testRun.phase === 'inFixtureBeforeEachHook';
+        const isInFixtureAfterEachHook  = t.testRun.phase === 'inFixtureAfterEachHook';
+
+        const beforeHookOnce = isInFixtureBeforeEachHook && this.executionCount === 0;
+        const afterHookOnce  = isInFixtureAfterEachHook && this.executionCount === browserCount - 1;
+
+        const needExecute    = !this.executed && (beforeHookOnce || afterHookOnce);
+
+        console.log(`need execute: ${needExecute} executed: ${this.executed} ${this.executionCount} ${beforeHookOnce} ${afterHookOnce}`);
+
+        if (needExecute) {
+            this.executed = true;
+
+            await executeFn(fn, t);
+        }
+
+        this.executionCount++;
+    }
+}
+
+export function beforeFixture (fn) {
+    const helper = initialize();
 
     return async function (t) {
-        const test      = t.testRun.test;
-        const tests     = test.fixture.testFile.collectedTests;
-        const testIndex = tests.indexOf(test);
+        const test         = t.testRun.test;
+        const tests        = test.fixture.testFile.collectedTests;
+        const testIndex    = tests.indexOf(test);
+        const browserCount = t.testRun.opts.browsers.length;
 
         const isInFixtureBeforeEachHook = t.testRun.phase === 'inFixtureBeforeEachHook';
         const isInFixtureAfterEachHook  = t.testRun.phase === 'inFixtureAfterEachHook';
@@ -21,107 +76,98 @@ export function oncePerFixture (fn) {
         if (!isFirstTestInFixture && !isLastTestInFixture)
             return;
 
-        const beforeHookOnce = isInFixtureBeforeEachHook && executionCount === 0;
-        const afterHookOnce  = isInFixtureAfterEachHook && executionCount === t.testRun.opts.browsers.length - 1;
-        const needExecute    = !executed && (beforeHookOnce || afterHookOnce);
+        helper.browserEnterHookCount++;
+
+        if (helper.browserEnterHookCount === browserCount)
+            helper.waitResolver();
+
+        await helper.waitAllBrowsersPromise;
+
+        const beforeHookOnce = isInFixtureBeforeEachHook && helper.executionCount === 0;
+        const afterHookOnce  = isInFixtureAfterEachHook && helper.executionCount === browserCount - 1;
+        const needExecute    = !helper.executed && (beforeHookOnce || afterHookOnce);
 
         if (needExecute) {
-            executed = true;
+            helper.executed = true;
 
-            if (typeof fn === 'function')
-                await fn(t);
+            await executeFn(fn, t);
         }
 
-        executionCount++;
+        helper.executionCount++;
 
-        if (executionCount === t.testRun.opts.browsers.length)
-            resolver();
+        if (helper.executionCount === browserCount)
+            helper.doneResolver();
 
-        await promise;
+        await helper.donePromise;
+
+        if (t.testRun.errOnHook)
+            throw t.testRun.errOnHook;
     };
 }
 
-export function oncePerTest () {
-    let executed       = false;
-    let resolver       = null;
-    let executionCount = 0;
-
-    const promise = new Promise(resolve => {
-        resolver = resolve;
-    });
+export function oncePerTest (fn) {
+    let helper = new Helper();
 
     return async function (t) {
-        const test      = t.testRun.test;
-        const tests     = test.fixture.testFile.collectedTests;
-        const testIndex = tests.indexOf(test);
+        console.log('enter the hook');
+        const browserCount = t.testRun.opts.browsers.length;
 
-        const isInFixtureBeforeEachHook = t.testRun.phase === 'inFixtureBeforeEachHook';
-        const isInFixtureAfterEachHook  = t.testRun.phase === 'inFixtureAfterEachHook';
+        await helper.waitAllBrowsersEnterHook(browserCount);
 
-        if (!isFirstTestInFixture && !isLastTestInFixture)
-            return;
+        await helper.executeFn(fn, t, browserCount);
 
-        const beforeHookOnce = isInFixtureBeforeEachHook && executionCount === 0;
-        const afterHookOnce  = isInFixtureAfterEachHook && executionCount === t.testRun.opts.browsers.length - 1;
-        const needExecute    = !executed && (beforeHookOnce || afterHookOnce);
+        await helper.waitAllBrowsersLeaveHook(browserCount);
 
-        if (needExecute) {
-            executed = true;
+        helper = new Helper();
 
-            if (typeof fn === 'function')
-                await fn(t);
+        if (t.testRun.errOnHook) {
+            console.log('err');
+            throw t.testRun.errOnHook;
         }
-
-        executionCount++;
-
-        if (executionCount === t.testRun.opts.browsers.length)
-            resolver();
-
-        await promise;
-
-        executed = false;
     };
 }
 
-export function beforeEach (fn) {
-    let executed       = false;
-    let resolver       = null;
-    let executionCount = 0;
 
-    const promise = new Promise(resolve => {
-        resolver = resolve;
+
+function initialize () {
+    const executed              = false;
+    const browserEnterHookCount = 0;
+    const executionCount        = 0;
+
+    let waitResolver = null;
+    let doneResolver = null;
+
+    const waitAllBrowsersPromise = new Promise(resolve => {
+        waitResolver = resolve;
     });
 
-    return async function (t) {
-        const test      = t.testRun.test;
-        const tests     = test.fixture.testFile.collectedTests;
-        const testIndex = tests.indexOf(test);
+    const donePromise = new Promise(resolve => {
+        doneResolver = resolve;
+    });
 
-        const isInFixtureBeforeEachHook = t.testRun.phase === 'inFixtureBeforeEachHook';
-        const isInFixtureAfterEachHook  = t.testRun.phase === 'inFixtureAfterEachHook';
+    return {
+        executed,
+        waitResolver,
+        doneResolver,
+        browserEnterHookCount,
+        executionCount,
+        waitAllBrowsersPromise,
+        donePromise
+    }
+}
 
-        const isFirstTestInFixture = testIndex === 0 && isInFixtureBeforeEachHook;
-        const isLastTestInFixture  = testIndex === tests.length - 1 && isInFixtureAfterEachHook;
+async function executeFn (fn, t) {
+    if (typeof fn === 'function') {
+        try {
+            console.log('executeFn');
 
-        if (!isFirstTestInFixture && !isLastTestInFixture)
-            return;
-
-        const beforeHookOnce = isInFixtureBeforeEachHook && executionCount === 0;
-        const afterHookOnce  = isInFixtureAfterEachHook && executionCount === t.testRun.opts.browsers.length - 1;
-        const needExecute    = !executed && (beforeHookOnce || afterHookOnce);
-
-        if (needExecute) {
-            executed = true;
-
-            if (typeof fn === 'function')
-                await fn(t);
+            await fn(t);
         }
+        catch (err) {
 
-        executionCount++;
+            console.log('catched');
 
-        if (executionCount === t.testRun.opts.browsers.length)
-            resolver();
-
-        await promise;
-    };
+            t.testRun.errOnHook = err;
+        }
+    }
 }
