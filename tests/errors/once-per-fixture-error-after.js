@@ -1,10 +1,10 @@
-import { once } from '../utils/once';
+import { oncePerFixture } from '../../utils';
 
-const afterHook = once(async t => {
+const afterHook = oncePerFixture(async t => {
     throw new Error();
 });
 
-fixture `Error in the 'afterHook'`
+fixture `once-per-fixture-error-after`
     .page `http://localhost:3000`
     .afterEach(afterHook);
 

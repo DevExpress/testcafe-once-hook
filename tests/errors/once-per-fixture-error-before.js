@@ -1,10 +1,10 @@
-import { once } from '../utils/once';
+import { oncePerFixture } from '../../utils';
 
-const beforeHook = once(async t => {
+const beforeHook = oncePerFixture(async t => {
     await t.click('#non-existing-element');
 });
 
-fixture `Error in the 'beforeHook'`
+fixture `once-per-fixture-error-after`
     .page `http://localhost:3000`
     .beforeEach(beforeHook);
 

@@ -1,26 +1,21 @@
 import { Selector } from 'testcafe';
+import { oncePerTest } from '../../utils';
+import { getPosts } from '../../utils/db';
 
-import { once } from '../utils/once';
-import { getPosts } from '../utils/db';
-
-const prepareDB = once(async t => {
+const prepareDB = oncePerTest(async t => {
+    await t.expect(getPosts().length).eql(1);
     await t.click(Selector('a').withText('Add'));
+    await t.expect(getPosts().length).eql(2);
 });
 
-const cleanDB = once(async t => {
+const cleanDB = oncePerTest(async t => {
+    await t.expect(getPosts().length).eql(2);
     await t.click(Selector('a').withText('Remove'));
+    await t.expect(getPosts().length).eql(1);
 });
 
-fixture `With TestController`
+fixture `once-per-test-with-testcontroller`
     .page `http://localhost:3000`
-    .before(() => {
-        if (getPosts().length !== 1)
-            throw new Error('Only one record should be store in the DB');
-    })
-    .after(() => {
-        if (getPosts().length !== 1)
-            throw new Error('Only one record should be store in the DB');
-    })
     .beforeEach(prepareDB)
     .afterEach(cleanDB);
 
