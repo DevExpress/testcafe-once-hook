@@ -1,13 +1,13 @@
 import { Selector } from 'testcafe';
 
-import { once } from '../utils/once';
-import { addPost, removePost } from '../utils/db';
+import { beforeEach } from '../../utils';
+import { addPost, removePost } from '../../utils/db';
 
-const prepareDB = once(async t => {
+const prepareDB = beforeEach(async t => {
     addPost();
 });
 
-const cleanDB = once(async t => {
+const cleanDB = beforeEach(async t => {
     removePost();
 });
 
