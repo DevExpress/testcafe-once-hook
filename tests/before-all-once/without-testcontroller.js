@@ -1,13 +1,13 @@
 import { Selector } from 'testcafe';
 
-import { beforeFixture } from '../../utils';
+import { oncePerFixture } from '../../utils';
 import { addPost, removePost } from '../../utils/db';
 
-const prepareDB = beforeFixture(async t => {
+const prepareDB = oncePerFixture(async t => {
     addPost();
 });
 
-const cleanDB = beforeFixture(async t => {
+const cleanDB = oncePerFixture(async t => {
     removePost();
 });
 

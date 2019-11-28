@@ -1,13 +1,13 @@
 import { Selector } from 'testcafe';
 
-import { beforeFixture } from '../../utils';
+import { oncePerFixture } from '../../utils';
 import { getPosts } from '../../utils/db';
 
-const prepareDB = beforeFixture(async t => {
+const prepareDB = oncePerFixture(async t => {
     await t.click(Selector('a').withText('Add'));
 });
 
-const cleanDB = beforeFixture(async t => {
+const cleanDB = oncePerFixture(async t => {
     await t.click(Selector('a').withText('Remove'));
 });
 
