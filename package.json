@@ -1,20 +1,21 @@
 {
-  "name": "hooks",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node ./bin/www",
-    "test": "node node_modules/testcafe/bin/testcafe chrome,firefox tests --app \"node ./bin/www\" --app-init-delay 5000"
+  "name": "testcafe-once-hook",
+  "version": "0.0.1",
+  "description": "This is a workaround for the `beforeAll` feature described in `https://github.com/DevExpress/testcafe/issues/1345`.",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DevExpress/testcafe-once-hook.git"
   },
-  "dependencies": {
-    "cookie-parser": "~1.4.4",
-    "debug": "~2.6.9",
-    "express": "~4.16.1",
-    "http-errors": "~1.6.3",
-    "jade": "~1.11.0",
-    "lowdb": "^1.0.0"
+  "author": {
+    "name": "Developer Express Inc.",
+    "url": "https://www.devexpress.com/"
   },
-  "devDependencies": {
-    "testcafe": "^1.7.0"
-  }
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DevExpress/testcafe-once-hook/issues"
+  },
+  "homepage": "https://github.com/DevExpress/testcafe-once-hook#readme"
 }
