@@ -1,6 +1,6 @@
 {
   "name": "testcafe-once-hook",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "This is a workaround for the `beforeAll` feature described in `https://github.com/DevExpress/testcafe/issues/1345`.",
   "main": "index.js",
   "dependencies": {},

@@ -78,7 +78,7 @@ class Helper {
     }
 }
 
-export function oncePerFixture (fn) {
+function oncePerFixture (fn) {
     let helper = new Helper();
 
     return async function (t) {
@@ -92,7 +92,7 @@ export function oncePerFixture (fn) {
     };
 }
 
-export function oncePerTest (fn) {
+function oncePerTest (fn) {
     let helper = new Helper();
 
     return async function (t) {
@@ -104,3 +104,8 @@ export function oncePerTest (fn) {
             throw t.testRun.errOnHook;
     };
 }
+
+module.exports = {
+    oncePerFixture,
+    oncePerTest
+};
