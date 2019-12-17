@@ -1,6 +1,6 @@
 # testcafe-once-hook
 
-This module provides TestCafe hooks executed once in a single browser even when you run tests in multiple browsers. This functionality is a workaround for an issue described in [#1345](https://github.com/DevExpress/testcafe/issues/1345).
+This module provides TestCafe hooks executed once in a single browser even when you run tests in multiple browsers. This functionality is a workaround for the issue described in [#1345](https://github.com/DevExpress/testcafe/issues/1345).
 
 The `testcafe-once-hook` module exports two functions:
 
