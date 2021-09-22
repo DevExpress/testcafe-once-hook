@@ -65,7 +65,9 @@ class Helper {
     }
 
     async executeFn (fn, t) {
-        const needExecute = t.browser.alias === t.testRun.opts.browsers[0];
+        const needExecute = typeof t.testRun.opts.browsers[0] === 'object'
+                            ? t.browser.alias === t.testRun.opts.browsers[0].alias
+                            : t.browser.alias === t.testRun.opts.browsers[0];
 
         if (needExecute)
             await Helper.executeFn(fn, t);
