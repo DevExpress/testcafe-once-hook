@@ -1,7 +1,6 @@
 class Helper {
     constructor () {
         this.browserCount          = 0;
-        this.executed              = false;
         this.browserEnterHookCount = 0;
         this.executionCount        = 0;
 
@@ -27,7 +26,7 @@ class Helper {
 
     static shouldExecuteFixtureHook (t) {
         const test      = t.testRun.test;
-        const tests     = test.fixture.testFile.collectedTests;
+        const tests     = test.fixture.testFile.collectedTests.filter(item => item.fixture === test.fixture);
         const testIndex = tests.indexOf(test);
 
         const isInFixtureBeforeEachHook = t.testRun.phase === 'inFixtureBeforeEachHook';
@@ -66,13 +65,12 @@ class Helper {
     }
 
     async executeFn (fn, t) {
-        const needExecute = !this.executed && t.browser.alias === t.testRun.opts.browsers[0];
+        const needExecute = typeof t.testRun.opts.browsers[0] === 'object'
+                            ? t.browser.alias === t.testRun.opts.browsers[0].alias
+                            : t.browser.alias === t.testRun.opts.browsers[0];
 
-        if (needExecute) {
-            this.executed = true;
-
+        if (needExecute)
             await Helper.executeFn(fn, t);
-        }
 
         this.executionCount++;
     }
