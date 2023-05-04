@@ -24,11 +24,22 @@ class Helper {
         }
     }
 
+    static getFilteredTests (t) {
+        const filterFn              = t.testRun.opts.filter;
+        const currentFixture        = t.testRun.test.fixture;
+        const fixtureTests          = currentFixture.testFile.collectedTests.filter(item => item.fixture === currentFixture);
+        const hasOnly               = fixtureTests.some(test => test.only);
+        const filteredByOnlyAndSkip = hasOnly ? fixtureTests.filter(test => test.only) : fixtureTests.filter(test => !test.skip);
+
+        return !filterFn
+            ? filteredByOnlyAndSkip
+            : filteredByOnlyAndSkip
+                .filter(test => filterFn(test.name, test.fixture.name, test.fixture.path, test.meta, test.fixture.meta));
+    }
+
     static shouldExecuteFixtureHook (t) {
-        const test      = t.testRun.test;
-        const tests     = test.fixture.testFile.collectedTests
-            .filter(item => item.fixture === test.fixture && !item.skip);
-        const testIndex = tests.indexOf(test);
+        const tests     = Helper.getFilteredTests(t);
+        const testIndex = tests.indexOf(t.testRun.test);
 
         const isInFixtureBeforeEachHook = t.testRun.phase === 'inFixtureBeforeEachHook';
         const isInFixtureAfterEachHook  = t.testRun.phase === 'inFixtureAfterEachHook';
