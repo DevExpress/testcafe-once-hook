@@ -26,7 +26,8 @@ class Helper {
 
     static shouldExecuteFixtureHook (t) {
         const test      = t.testRun.test;
-        const tests     = test.fixture.testFile.collectedTests.filter(item => item.fixture === test.fixture);
+        const tests     = test.fixture.testFile.collectedTests
+            .filter(item => item.fixture === test.fixture && !item.skip);
         const testIndex = tests.indexOf(test);
 
         const isInFixtureBeforeEachHook = t.testRun.phase === 'inFixtureBeforeEachHook';
